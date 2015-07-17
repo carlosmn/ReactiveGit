@@ -9,7 +9,7 @@ namespace ReactiveGit
     public partial class ObservableRepository
     {
         /// <inheritdoc />
-        public IObservable<MergeResult> Pull(
+        public MergeResult Pull(
             IObserver<Message> observer)
         {
             var signature = _repository.Config.BuildSignature(DateTimeOffset.Now);
@@ -33,25 +33,9 @@ namespace ReactiveGit
                 }
             };
 
-            return Observable.Create<MergeResult>(subj =>
-            {
-                var sub = Observable.Start(() =>
-                {
-                    var result = _repository.Network.Pull(signature, options);
-
-                    observer.OnCompleted();
-
-                    return result;
-                }, Scheduler.Default).Subscribe(subj);
-
-                return new CompositeDisposable(
-                    sub,
-                    Disposable.Create(() =>
-                    {
-                        isCancelled = true;
-                        observer.OnCompleted();
-                    }));
-            });
+            var result = _repository.Network.Pull(signature, options);
+            observer.OnCompleted();
+            return result;
         }
     }
 }

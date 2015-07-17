@@ -9,26 +9,22 @@ namespace ReactiveGit
     public partial class ObservableRepository
     {
         /// <inheritdoc />
-        public IObservable<Unit> Checkout(
+        public void Checkout(
             Branch branch,
             IObserver<CheckoutProgressMessage> observer)
         {
-           var signature = _repository.Config.BuildSignature(DateTimeOffset.Now);
+            var signature = _repository.Config.BuildSignature(DateTimeOffset.Now);
 
             var options = new CheckoutOptions
             {
                 OnCheckoutProgress = ProgressFactory.CreateHandlerForMessage(observer)
             };
 
-            return Observable.Start(() =>
-            {
-                _repository.Checkout(branch, options, signature);
-                observer.OnCompleted();
-            }, Scheduler.Default);
+            _repository.Checkout(branch, options, signature);
         }
 
         /// <inheritdoc />
-        public IObservable<Unit> Checkout(
+        public void Checkout(
             Commit commit,
             IObserver<CheckoutProgressMessage> observer)
         {
@@ -39,15 +35,11 @@ namespace ReactiveGit
                 OnCheckoutProgress = ProgressFactory.CreateHandlerForMessage(observer)
             };
 
-            return Observable.Start(() =>
-            {
-                _repository.Checkout(commit, options, signature);
-                observer.OnCompleted();
-            }, Scheduler.Default);
+            _repository.Checkout(commit, options, signature);
         }
 
         /// <inheritdoc />
-        public IObservable<Unit> Checkout(
+        public void Checkout(
             string commitOrBranchSpec,
             IObserver<CheckoutProgressMessage> observer)
         {
@@ -58,11 +50,7 @@ namespace ReactiveGit
                 OnCheckoutProgress = ProgressFactory.CreateHandlerForMessage(observer)
             };
 
-            return Observable.Start(() =>
-            {
-                _repository.Checkout(commitOrBranchSpec, options, signature);
-                observer.OnCompleted();
-            }, Scheduler.Default);
+            _repository.Checkout(commitOrBranchSpec, options, signature);
         }
     }
 }

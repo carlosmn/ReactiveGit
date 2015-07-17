@@ -10,7 +10,7 @@ namespace ReactiveGit
     public partial class ObservableRepository
     {
         /// <inheritdoc />
-        public IObservable<Unit> Push(IObserver<Message> observer)
+        public void Push(IObserver<Message> observer)
         {
             var branch = _repository.Head;
 
@@ -25,23 +25,7 @@ namespace ReactiveGit
                 }
             };
 
-            return Observable.Create<Unit>(subj =>
-            {
-                var sub = Observable.Start(() =>
-                {
-                    _repository.Network.Push(branch, options);
-
-                    observer.OnCompleted();
-                }, Scheduler.Default).Subscribe(subj);
-
-                return new CompositeDisposable(
-                    sub,
-                    Disposable.Create(() =>
-                    {
-                        isCancelled = true;
-                        observer.OnCompleted();
-                    }));
-            });
+            _repository.Network.Push(branch, options);
         }
     }
 }

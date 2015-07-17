@@ -33,7 +33,7 @@ namespace ReactiveGit.Tests
         }
 
         [Fact]
-        public async Task GetProgressFromASyncOperation()
+        public void GetProgressFromASyncOperation()
         {
             CredentialsHandler credentials = (url, usernameFromUrl, types) =>
                 new UsernamePasswordCredentials
@@ -49,11 +49,11 @@ namespace ReactiveGit.Tests
             var pullObserver = new ReplaySubject<Message>();
             var pushObserver = new ReplaySubject<Message>();
 
-            var pullResult = await repository.Pull(pullObserver);
+            var pullResult = repository.Pull(pullObserver);
 
             Assert.NotEqual(MergeStatus.Conflicts, pullResult.Status);
 
-            await repository.Push(pushObserver);
+            repository.Push(pushObserver);
         }
     }
 }
