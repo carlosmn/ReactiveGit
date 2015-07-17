@@ -29,7 +29,7 @@ namespace ReactiveGit
         /// <param name="commit">The desired commit</param>
         /// <param name="observer">An observer to report progress</param>
         /// <returns>A signal indicating completion</returns>
-        IObservable<Unit> Checkout(Commit commit, IObserver<Tuple<string, int>> observer);
+        IObservable<Unit> Checkout(Commit commit, IObserver<CheckoutProgressMessage> observer);
 
         /// <summary>
         /// Checkout a specific branch for this repository
@@ -37,7 +37,7 @@ namespace ReactiveGit
         /// <param name="branch">The desired branch</param>
         /// <param name="observer">An observer to report progress</param>
         /// <returns>A signal indicating completion</returns>
-        IObservable<Unit> Checkout(Branch branch, IObserver<Tuple<string, int>> observer);
+        IObservable<Unit> Checkout(Branch branch, IObserver<CheckoutProgressMessage> observer);
 
         /// <summary>
         /// Checkout a specific commitish for this repository
@@ -45,7 +45,7 @@ namespace ReactiveGit
         /// <param name="commitOrBranchSpec">The desired commit</param>
         /// <param name="observer">An observer to report progress</param>
         /// <returns>A signal indicating completion</returns>
-        IObservable<Unit> Checkout(string commitOrBranchSpec, IObserver<Tuple<string, int>> observer);
+        IObservable<Unit> Checkout(string commitOrBranchSpec, IObserver<CheckoutProgressMessage> observer);
 
         /// <summary>
         /// Access to the underlying LibGit2Sharp repository
