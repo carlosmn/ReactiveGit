@@ -5,6 +5,14 @@ namespace ReactiveGit
 {
     internal static class ProgressFactory
     {
+        public static CheckoutProgressHandler CreateHandlerForMessage(IObserver<Message> observer)
+        {
+            return (path, completedSteps, totalSteps) =>
+            {
+                observer.OnNext(new CheckoutProgressMessage(path, completedSteps, totalSteps));
+            };
+        }
+
         public static CheckoutProgressHandler CreateHandler(
             IObserver<Tuple<string, int>> observer,
             int start = 0,

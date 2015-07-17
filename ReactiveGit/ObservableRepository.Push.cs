@@ -10,7 +10,7 @@ namespace ReactiveGit
     public partial class ObservableRepository
     {
         /// <inheritdoc />
-        public IObservable<Unit> Push(IObserver<Tuple<string, int>> observer)
+        public IObservable<Unit> Push(IObserver<Message> observer)
         {
             var branch = _repository.Head;
 
@@ -20,14 +20,7 @@ namespace ReactiveGit
                 CredentialsProvider = _credentialsHandler,
                 OnPushTransferProgress = (current, total, bytes) =>
                 {
-                    var progress = 0;
-                    if (total != 0)
-                    {
-                        progress = 50 + (50 * current) / total;
-                    }
-
-                    observer.OnNext(Tuple.Create("", progress));
-
+                    observer.OnNext(new PushTransferProgressMessage(current, total, bytes));
                     return !isCancelled;
                 }
             };
@@ -38,7 +31,6 @@ namespace ReactiveGit
                 {
                     _repository.Network.Push(branch, options);
 
-                    observer.OnNext(Tuple.Create("push completed", 100));
                     observer.OnCompleted();
                 }, Scheduler.Default).Subscribe(subj);
 

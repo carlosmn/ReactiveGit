@@ -18,15 +18,16 @@ namespace ReactiveGit.Tests
         {
             using (var directory = TestDirectory.Create())
             {
-                var cloneObserver = new ReplaySubject<Tuple<string, int>>();
+                bool completed = false;
+                var cloneObserver = new ReplaySubject<Message>();
+                cloneObserver.Subscribe((msg) => { }, () => completed = true);
                 using (await ObservableRepository.Clone(
                     "https://github.com/shiftkey/rxui-design-guidelines.git",
                     directory.Path,
                     cloneObserver))
                 {
                     Assert.NotEmpty(Directory.GetFiles(directory.Path));
-                    var progressList = await cloneObserver.Select(x => x.Item2).ToList();
-                    Assert.Equal(100, progressList.Last());
+                    Assert.True(completed);
                 }
             }
         }
@@ -45,23 +46,14 @@ namespace ReactiveGit.Tests
                 @"C:\Users\brendanforster\Documents\GìtHūb\testing-pushspecs",
                 credentials);
 
-            Func<int, int> translate = x => x / 3;
-
-            var pullObserver = new ReplaySubject<Tuple<string, int>>();
-            var pushObserver = new ReplaySubject<Tuple<string, int>>();
+            var pullObserver = new ReplaySubject<Message>();
+            var pushObserver = new ReplaySubject<Message>();
 
             var pullResult = await repository.Pull(pullObserver);
 
             Assert.NotEqual(MergeStatus.Conflicts, pullResult.Status);
 
             await repository.Push(pushObserver);
-
-            var list = await pullObserver.Select(x => translate(x.Item2) * 2)
-                                 .Concat(pushObserver.Select(x => 67 + translate(x.Item2)))
-                                 .ToList();
-
-            Assert.NotEmpty(list);
-            Assert.Equal(100, list.Last());
         }
     }
 }

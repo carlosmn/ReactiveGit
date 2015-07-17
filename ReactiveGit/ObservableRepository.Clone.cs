@@ -14,7 +14,7 @@ namespace ReactiveGit
         public static IObservable<IObservableRepository> Clone(
             string sourceUrl,
             string workingDirectory,
-            IObserver<Tuple<string, int>> observer,
+            IObserver<Message> observer,
             CredentialsHandler credentials = null)
         {
             var isCancelled = false;
@@ -24,27 +24,18 @@ namespace ReactiveGit
                 CredentialsProvider = credentials,
                 OnTransferProgress = progress =>
                 {
-                    // TODO: how should we signal for the "indexing objects" events
-                    var p = (100 * progress.ReceivedObjects) / progress.TotalObjects;
-                    var receivingMessage = String.Format("Receiving objects:  {0}% ({1}/{2})", p, progress.ReceivedObjects, progress.TotalObjects);
-                    observer.OnNext(Tuple.Create(receivingMessage, p));
+                    observer.OnNext(new TransferProgressMessage(progress));
                     return !isCancelled;
                 },
                 IsBare = false,
-                OnCheckoutProgress = ProgressFactory.CreateHandlerWithoutMessages(observer)
+                OnCheckoutProgress = ProgressFactory.CreateHandlerForMessage(observer),
             };
-
-            var directoryInfo = new DirectoryInfo(workingDirectory);
-            var initialMessage = String.Format("Cloning into '{0}'...", directoryInfo.Name);
-            observer.OnNext(Tuple.Create(initialMessage, 0));
 
             return Observable.Create<ObservableRepository>(subj =>
             {
                 var sub = Observable.Start(() =>
                 {
                     var directory = Repository.Clone(sourceUrl, workingDirectory, options);
-
-                    observer.OnNext(Tuple.Create("clone completed", 100));
                     observer.OnCompleted();
 
                     return new ObservableRepository(directory, credentials);
